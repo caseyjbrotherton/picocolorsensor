@@ -12,7 +12,11 @@ pico_sdk_init()
 add_executable(picocolorsensor main.cpp)
 
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(picocolorsensor pico_stdlib hardware_i2c hardware_uart)
+target_link_libraries(picocolorsensor pico_stdlib hardware_i2c hardware_uart )
+
+# enable usb output, enable uart output
+pico_enable_stdio_usb(picocolorsensor 1)
+pico_enable_stdio_uart(picocolorsensor 1)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(picocolorsensor)
