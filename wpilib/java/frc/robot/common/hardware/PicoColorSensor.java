@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.common.hardware;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.SerialPortJNI;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class PicoColorSensor implements AutoCloseable {
   public static class RawColor {
@@ -113,7 +114,6 @@ public class PicoColorSensor implements AutoCloseable {
     RawColor color1 = new RawColor();
     RawColor color2 = new RawColor();
 
-
     while (threadRunning.get()) {
       int read = SerialPortJNI.serialRead(port, buffer, buffer.length - 1);
       if (read <= 0) {
@@ -121,7 +121,7 @@ public class PicoColorSensor implements AutoCloseable {
           threadLock.lock();
           this.hasColor0 = false;
           this.hasColor1 = false;
-          this.hasColor2 = false;
+		  this.hasColor2 = false;
         } finally {
           threadLock.unlock();
         }
@@ -165,7 +165,6 @@ public class PicoColorSensor implements AutoCloseable {
       color2.ir = parseIntFromIndex(charSeq, read, lastComma);
       int prox2 = parseIntFromIndex(charSeq, read, lastComma);
 
-
       double ts = Timer.getFPGATimestamp();
 
       try {
@@ -173,6 +172,7 @@ public class PicoColorSensor implements AutoCloseable {
         this.lastReadTime = ts;
         this.hasColor0 = hasColor0;
         this.hasColor1 = hasColor1;
+		this.hasColor2 = hasColor2;
         if (hasColor0) {
           this.color0.red = color0.red;
           this.color0.green = color0.green;
@@ -187,14 +187,14 @@ public class PicoColorSensor implements AutoCloseable {
           this.color1.ir = color1.ir;
           this.prox1 = prox1;
         }
-	if (hasColor2) {
+        if (hasColor2) {
           this.color2.red = color2.red;
           this.color2.green = color2.green;
           this.color2.blue = color2.blue;
           this.color2.ir = color2.ir;
           this.prox2 = prox2;
         }
-
+		
       } finally {
         threadLock.unlock();
       }
@@ -227,7 +227,6 @@ public class PicoColorSensor implements AutoCloseable {
     }
   }
 
-
   public boolean isSensor2Connected() {
     try {
       threadLock.lock();
@@ -237,6 +236,36 @@ public class PicoColorSensor implements AutoCloseable {
     }
   }
 
+  public Color getColor0() {
+	try {
+	  threadLock.lock();
+	  double magnitude=color0.red+color0.green+color0.blue;
+	  return new Color(color0.red/magnitude, color0.green/magnitude, color0.blue/magnitude);
+	} finally {
+	  threadLock.unlock();
+	}
+  }
+  
+  public Color getColor1() {
+	try {
+	  threadLock.lock();
+	  double magnitude=color1.red+color1.green+color1.blue;
+	  return new Color(color1.red/magnitude, color1.green/magnitude, color1.blue/magnitude);
+	} finally {
+	  threadLock.unlock();
+	}
+  }
+  
+  public Color getColor2() {
+	try {
+	  threadLock.lock();
+	  double magnitude=color2.red+color2.green+color2.blue;
+	  return new Color(color2.red/magnitude, color2.green/magnitude, color2.blue/magnitude);
+	} finally {
+	  threadLock.unlock();
+	}
+  }
+  
   public RawColor getRawColor0() {
     try {
       threadLock.lock();
@@ -296,6 +325,7 @@ public class PicoColorSensor implements AutoCloseable {
       threadLock.unlock();
     }
   }
+
 
   public RawColor getRawColor2() {
     try {
