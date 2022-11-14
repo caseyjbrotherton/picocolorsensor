@@ -189,10 +189,21 @@ void blink_led() {
 
 int main()
 {
+	
+	
     // Allow stdio to be sent to the uart in order to easily switch between usb serial and uart for testing.
     stdio_uart_init_full (uart0, 115200, PICO_DEFAULT_UART_TX_PIN, PICO_DEFAULT_UART_RX_PIN);
+    stdio_usb_init();
     stdio_init_all();
 
+    blink_led(); // turn on LED for half a second.
+    sleep_ms(1000);
+    if ( stdio_usb_connected() ) {
+		for ( int i=0; i<3; i++){
+		  blink_led();
+		  sleep_ms(500);
+	    };
+    };
 
     // Init I2c 0
     i2c_init(i2c0, 400000);
